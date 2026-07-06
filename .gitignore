@@ -2,6 +2,7 @@
 runtime/*
 !runtime
 !runtime/cache/.gitkeep
+.runtime/
 go.sum
 resources/admin
 release
