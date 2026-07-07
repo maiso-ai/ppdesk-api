@@ -26,6 +26,7 @@ func Init(g *gin.Engine) {
 	ConfigBind(adg)
 
 	adg.Use(middleware.BackendUserAuth())
+	DashboardBind(adg)
 	//FileBind(adg)
 	UserBind(adg)
 	GroupBind(adg)
@@ -62,6 +63,12 @@ func RustdeskCmdBind(adg *gin.RouterGroup) {
 	rg.POST("/cmdDelete", cont.CmdDelete)
 	rg.POST("/cmdCreate", cont.CmdCreate)
 }
+
+func DashboardBind(rg *gin.RouterGroup) {
+	cont := &admin.Dashboard{}
+	rg.GET("/dashboard/summary", middleware.AdminPrivilege(), cont.Summary)
+}
+
 func LoginBind(rg *gin.RouterGroup) {
 	cont := &admin.Login{}
 	rg.POST("/login", cont.Login)
@@ -237,10 +244,12 @@ func ConfigBind(rg *gin.RouterGroup) {
 	rs := &admin.Config{}
 
 	aR.GET("/admin", rs.AdminConfig)
+	aR.GET("/website", rs.WebsiteConfig)
 
 	aR.Use(middleware.BackendUserAuth())
 	aR.GET("/server", rs.ServerConfig)
 	aR.GET("/app", rs.AppConfig)
+	aR.POST("/website", middleware.AdminPrivilege(), rs.UpdateWebsiteConfig)
 
 }
 

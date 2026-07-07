@@ -2,6 +2,7 @@ package admin
 
 import (
 	"github.com/gin-gonic/gin"
+	configpkg "github.com/lejianwen/rustdesk-api/v2/config"
 	"github.com/lejianwen/rustdesk-api/v2/global"
 	"github.com/lejianwen/rustdesk-api/v2/http/response"
 	"github.com/lejianwen/rustdesk-api/v2/model"
@@ -94,4 +95,57 @@ func (co *Config) AdminConfig(c *gin.Context) {
 		"title": global.Config.Admin.Title,
 		"hello": hello,
 	})
+}
+
+// WebsiteConfig 官网配置
+// @Tags ADMIN
+// @Summary 官网配置
+// @Description 官网标题、SEO 与客户端下载地址
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /admin/config/website [get]
+func (co *Config) WebsiteConfig(c *gin.Context) {
+	cf := global.Config.Website
+	cf.Init()
+	response.Success(c, cf)
+}
+
+// UpdateWebsiteConfig 保存官网配置
+// @Tags ADMIN
+// @Summary 保存官网配置
+// @Description 保存官网标题、SEO 与客户端下载地址
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /admin/config/website [post]
+// @Security token
+func (co *Config) UpdateWebsiteConfig(c *gin.Context) {
+	req := configpkg.Website{}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, 400, err.Error())
+		return
+	}
+	req.Init()
+	global.Config.Website = req
+
+	if global.Viper != nil {
+		global.Viper.Set("website.title", req.Title)
+		global.Viper.Set("website.seo-description", req.SeoDescription)
+		global.Viper.Set("website.seo-keywords", req.SeoKeywords)
+		global.Viper.Set("website.downloads.windows-x86", req.Downloads.WindowsX86)
+		global.Viper.Set("website.downloads.windows-arm", req.Downloads.WindowsArm)
+		global.Viper.Set("website.downloads.android", req.Downloads.Android)
+		global.Viper.Set("website.downloads.linux", req.Downloads.Linux)
+		global.Viper.Set("website.downloads.mac-intel", req.Downloads.MacIntel)
+		global.Viper.Set("website.downloads.mac-apple", req.Downloads.MacApple)
+		if err := global.Viper.WriteConfig(); err != nil {
+			response.Fail(c, 500, err.Error())
+			return
+		}
+	}
+
+	response.Success(c, global.Config.Website)
 }

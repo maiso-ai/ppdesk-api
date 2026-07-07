@@ -31,10 +31,28 @@ type Admin struct {
 	IdServerPort    int    `mapstructure:"id-server-port"`
 	RelayServerPort int    `mapstructure:"relay-server-port"`
 }
+
+type WebsiteDownloads struct {
+	WindowsX86 string `mapstructure:"windows-x86" json:"windows_x86"`
+	WindowsArm string `mapstructure:"windows-arm" json:"windows_arm"`
+	Android    string `mapstructure:"android" json:"android"`
+	Linux      string `mapstructure:"linux" json:"linux"`
+	MacIntel   string `mapstructure:"mac-intel" json:"mac_intel"`
+	MacApple   string `mapstructure:"mac-apple" json:"mac_apple"`
+}
+
+type Website struct {
+	Title          string           `mapstructure:"title" json:"title"`
+	SeoDescription string           `mapstructure:"seo-description" json:"seo_description"`
+	SeoKeywords    string           `mapstructure:"seo-keywords" json:"seo_keywords"`
+	Downloads      WebsiteDownloads `mapstructure:"downloads" json:"downloads"`
+}
+
 type Config struct {
 	Lang       string `mapstructure:"lang"`
 	App        App
 	Admin      Admin
+	Website    Website
 	Gorm       Gorm
 	Mysql      Mysql
 	Postgresql Postgresql
@@ -55,6 +73,36 @@ func (a *Admin) Init() {
 	}
 	if a.RelayServerPort == 0 {
 		a.RelayServerPort = DefaultRelayServerPort
+	}
+}
+
+func (w *Website) Init() {
+	if w.Title == "" {
+		w.Title = "皮皮远程 PPDESK"
+	}
+	if w.SeoDescription == "" {
+		w.SeoDescription = "PPDESK 皮皮远程，安全连接你的远程设备与工作空间。"
+	}
+	if w.SeoKeywords == "" {
+		w.SeoKeywords = "皮皮远程,PPDESK,远程桌面,远程控制,远程办公"
+	}
+	if w.Downloads.WindowsX86 == "" {
+		w.Downloads.WindowsX86 = "/downloads/PPDesk-Setup-x86_64.exe"
+	}
+	if w.Downloads.WindowsArm == "" {
+		w.Downloads.WindowsArm = "/downloads/PPDesk-Setup-arm64.exe"
+	}
+	if w.Downloads.Android == "" {
+		w.Downloads.Android = "/downloads/PPDesk-Android.apk"
+	}
+	if w.Downloads.Linux == "" {
+		w.Downloads.Linux = "/downloads/ppdesk-linux-x86_64.AppImage"
+	}
+	if w.Downloads.MacIntel == "" {
+		w.Downloads.MacIntel = "/downloads/PPDesk-macOS-intel.dmg"
+	}
+	if w.Downloads.MacApple == "" {
+		w.Downloads.MacApple = "/downloads/PPDesk-macOS-apple-silicon.dmg"
 	}
 }
 
@@ -93,6 +141,7 @@ func Init(rowVal *Config, path string) *viper.Viper {
 	}
 	rowVal.Rustdesk.LoadKeyFile()
 	rowVal.Admin.Init()
+	rowVal.Website.Init()
 	return v
 }
 

@@ -12,6 +12,7 @@ type PeerForm struct {
 	Username string `json:"username"`
 	Uuid     string `json:"uuid"`
 	Version  string `json:"version"`
+	UserId   uint   `json:"user_id"`
 	GroupId  uint   `json:"group_id"`
 	Alias    string `json:"alias"`
 }
@@ -32,6 +33,7 @@ func (f *PeerForm) ToPeer() *model.Peer {
 		Username: f.Username,
 		Uuid:     f.Uuid,
 		Version:  f.Version,
+		UserId:   f.UserId,
 		GroupId:  f.GroupId,
 		Alias:    f.Alias,
 	}
